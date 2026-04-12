@@ -1,95 +1,151 @@
-# 😊 Emotion Detection from Facial Expressions
+# SentientAI — Emotion Detection from Facial Expressions
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/TensorFlow-2.x-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white"/>
-  <img src="https://img.shields.io/badge/OpenCV-4.x-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"/>
-</p>
+<div align="center">
 
-<p align="center">
-  A deep learning-based system that detects and classifies human emotions in real-time from facial expressions using Convolutional Neural Networks (CNN).
-</p>
+![SentientAI Banner](static/results/val_batch0_pred.jpg)
 
----
+<br/>
 
-## 📌 Table of Contents
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.x-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
+[![YOLOv11](https://img.shields.io/badge/YOLO-v11s-FF6F00?style=for-the-badge&logo=opencv&logoColor=white)](https://docs.ultralytics.com)
+[![Kaggle](https://img.shields.io/badge/Trained_on-Kaggle_GPU-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white)](https://kaggle.com)
+[![mAP50](https://img.shields.io/badge/mAP@50-87.3%25-22c55e?style=for-the-badge)](https://github.com/rishavm003/Emotion-Detection-from-Facial-Expressions)
+[![License](https://img.shields.io/badge/License-MIT-a855f7?style=for-the-badge)](LICENSE)
 
-- [Overview](#-overview)
-- [Demo](#-demo)
-- [Features](#-features)
-- [Emotions Detected](#-emotions-detected)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Dataset](#-dataset)
-- [Model Architecture](#-model-architecture)
-- [Results](#-results)
-- [Contributing](#-contributing)
-- [License](#-license)
+**Real-time facial emotion detection powered by a fine-tuned YOLO11s model —  
+trained from scratch on Kaggle GPU across 9 emotion classes.**
 
----
+[Features](#-features) • [Demo](#-demo) • [Model Performance](#-model-performance) • [Installation](#-installation) • [Usage](#-usage) • [Project Structure](#-project-structure)
 
-## 🧠 Overview
-
-This project implements a real-time **Facial Emotion Recognition (FER)** system using deep learning. It captures video from a webcam (or static images), detects faces using OpenCV's Haar Cascade or MTCNN, and classifies the detected face into one of 7 universal emotion categories using a trained CNN model.
-
-The model is trained on the **FER-2013** dataset and achieves competitive accuracy on the test set.
-
----
-
-## 🎥 Demo
-
-```
-Input: Webcam / Image / Video
-  └─► Face Detection (OpenCV / MTCNN)
-        └─► Preprocessing (Grayscale, Resize to 48x48)
-              └─► CNN Model Inference
-                    └─► Emotion Label Displayed on Frame
-```
-
-> **Example Output:** Bounding box around the detected face with the predicted emotion label (e.g., `Happy: 94.3%`) overlaid on the video feed.
+</div>
 
 ---
 
 ## ✨ Features
 
-- 🔴 **Real-time detection** via webcam feed
-- 🖼️ **Static image** emotion analysis
-- 🎬 **Video file** processing support
-- 🧩 **Multi-face detection** in a single frame
-- 📊 **Confidence scores** displayed for each prediction
-- 💾 **Pre-trained model** included for quick inference
-- 🧪 **Training pipeline** to retrain on custom data
+- 🎥 **Real-time webcam detection** — live bounding boxes with emotion labels and confidence scores
+- ⚡ **Decoupled render/inference** — video runs at 60 FPS, inference fires independently without blocking
+- 📊 **Model Results dashboard** — interactive training charts, confusion matrix, F1 curves, per-class accuracy bars
+- 🌞🌙 **Light / Dark theme toggle** — preference saved across sessions via localStorage
+- 📸 **Snapshot** — save the current frame with bounding boxes drawn
+- 🔄 **Flip View** — mirror the webcam feed
 
 ---
 
-## 😄 Emotions Detected
+## 🎬 Demo
 
-| Label | Emotion   |
-|-------|-----------|
-| 0     | Angry     |
-| 1     | Disgust   |
-| 2     | Fear      |
-| 3     | Happy     |
-| 4     | Neutral   |
-| 5     | Sad       |
-| 6     | Surprise  |
+### Live Detection Tab
+The main interface starts the webcam and runs real-time emotion detection:
+
+| Primary emotion display | Confidence history chart | Per-face detection feed |
+|---|---|---|
+| Large coloured label | 40-frame sparkline | Sorted confidence bars |
+
+### Model Results Tab
+A full analytics dashboard built from the Kaggle training run:
+
+- **Training curves** — box loss, cls loss, dfl loss across all 20 epochs
+- **Interactive mAP chart** — mAP@50, mAP@50-95, Precision, Recall (Chart.js)
+- **Confusion matrix** — normalised per-class accuracy
+- **F1-Confidence & PR curves**
+- **Validation prediction samples** (pred vs ground truth side by side)
+- **Training configuration table**
 
 ---
 
-## 🛠️ Tech Stack
+## 📈 Model Performance
 
-| Component         | Technology                        |
-|------------------|-----------------------------------|
-| Language          | Python 3.8+                      |
-| Deep Learning     | TensorFlow / Keras                |
-| Computer Vision   | OpenCV                           |
-| Face Detection    | Haar Cascade / MTCNN             |
-| Data Handling     | NumPy, Pandas                    |
-| Visualization     | Matplotlib, Seaborn              |
-| Environment       | Jupyter Notebook / Python Script |
+Trained using **YOLO11s** (pretrained on COCO) fine-tuned for emotion detection on a labelled facial expression dataset.
+
+| Metric | Score |
+|---|---|
+| **mAP@50** | **87.3%** |
+| **mAP@50-95** | **69.1%** |
+| **Precision** | **80.3%** |
+| **Recall** | **80.5%** |
+
+### Per-Class Accuracy (from Confusion Matrix)
+
+| Emotion | Accuracy | Emotion | Accuracy |
+|---|---|---|---|
+| 😴 Sleepy | **95%** | 😲 Surprised | 80% |
+| 😊 Happy | **91%** | 🤢 Disgust | 74% |
+| 😠 Angry | **86%** | 😐 Natural | 69% |
+| 😨 Fear | **84%** | 😒 Contempt | 67% |
+| 😢 Sad | **83%** | | |
+
+### Training Configuration
+
+| Parameter | Value | Parameter | Value |
+|---|---|---|---|
+| Model | YOLO11s | Platform | Kaggle GPU |
+| Epochs | 20 | Batch Size | 50 |
+| Image Size | 640×640 | Optimizer | Auto (AdamW) |
+| LR₀ | 0.01 | LRf | 0.01 |
+| Warmup Epochs | 3 | IoU Threshold | 0.70 |
+| Pretrained | Yes (COCO) | AMP | Enabled |
+
+---
+
+## 🛠 Installation
+
+### Prerequisites
+- Python 3.10+
+- Webcam
+- (Optional) NVIDIA GPU for faster inference
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/rishavm003/Emotion-Detection-from-Facial-Expressions.git
+cd Emotion-Detection-from-Facial-Expressions
+```
+
+### 2. Create and activate virtual environment
+```bash
+# Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# macOS / Linux
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Download the trained model weights
+
+The model weights (`best.pt`) are not included in the repo due to file size.  
+Download them and place at:
+```
+results/runs/detect/emotion_yolo11s_kaggle/weights/best.pt
+```
+
+> You can retrain the model using `train_on_kaggle.ipynb` on Kaggle, or `train_on_colab.ipynb` on Google Colab.
+
+---
+
+## 🚀 Usage
+
+### Start the application
+```bash
+python app.py
+```
+
+Then open your browser at:
+```
+http://127.0.0.1:5000
+```
+
+### In the browser
+1. Click **"INITIALISE NEURAL LINK"** to start the webcam
+2. The model will detect faces and classify emotions in real time
+3. Switch to **"Model Results"** tab to explore training analytics
+4. Use the **☀️/🌙** button in the top right to toggle light/dark theme
 
 ---
 
@@ -98,236 +154,92 @@ Input: Webcam / Image / Video
 ```
 Emotion-Detection-from-Facial-Expressions/
 │
-├── dataset/                    # Dataset directory
-│   ├── train/                  # Training images (organized by emotion)
-│   └── test/                   # Testing images (organized by emotion)
+├── app.py                          # Flask backend — serves UI and /detect API
+├── requirements.txt                # Python dependencies
+├── .gitignore                      # Excludes secrets, venv, weights
+├── train_on_kaggle.ipynb           # Kaggle training notebook
+├── train_on_colab.ipynb            # Google Colab training notebook
 │
-├── models/                     # Saved model files
-│   ├── emotion_model.h5        # Pre-trained Keras model
-│   └── emotion_model.json      # Model architecture
+├── templates/
+│   └── index.html                  # Full single-page UI (Live + Results tabs)
 │
-├── haarcascades/               # OpenCV face detection classifiers
-│   └── haarcascade_frontalface_default.xml
+├── static/
+│   ├── style.css                   # Light & Dark theme system
+│   └── results/                    # Training output images (charts, batches)
+│       ├── results.png             # All metrics curves
+│       ├── confusion_matrix_normalized.png
+│       ├── BoxF1_curve.png
+│       ├── BoxPR_curve.png
+│       ├── val_batch0_pred.jpg     # Validation predictions
+│       └── ...
 │
-├── notebooks/                  # Jupyter notebooks
-│   ├── EDA.ipynb               # Exploratory Data Analysis
-│   └── Model_Training.ipynb    # Training pipeline
-│
-├── src/                        # Source code
-│   ├── train.py                # Model training script
-│   ├── predict.py              # Inference on images/video
-│   ├── realtime_detection.py   # Real-time webcam detection
-│   └── utils.py                # Helper functions
-│
-├── requirements.txt            # Python dependencies
-├── README.md                   # Project documentation
-└── LICENSE                     # License file
+└── results/
+    ├── emotion_data.yaml           # Dataset config (classes, paths)
+    └── runs/detect/emotion_yolo11s_kaggle/
+        ├── results.csv             # Per-epoch metrics log
+        ├── args.yaml               # Full training config
+        └── weights/
+            ├── best.pt             # ← best model (not tracked by git)
+            └── last.pt             # ← last epoch model (not tracked by git)
 ```
 
 ---
 
-## ⚙️ Installation
+## 🔌 API Reference
 
-### Prerequisites
+### `POST /detect`
 
-- Python 3.8 or higher
-- pip
-- A webcam (for real-time detection)
+Accepts a base64-encoded JPEG image and returns detected emotion bounding boxes.
 
-### Steps
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/your-username/Emotion-Detection-from-Facial-Expressions.git
-cd Emotion-Detection-from-Facial-Expressions
+**Request body:**
+```json
+{
+  "image": "data:image/jpeg;base64,..."
+}
 ```
 
-**2. Create a virtual environment (recommended)**
-```bash
-python -m venv venv
-source venv/bin/activate        # On Windows: venv\Scripts\activate
-```
-
-**3. Install dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-**4. Download the pre-trained model** *(if not included)*
-```bash
-# Place emotion_model.h5 inside the models/ directory
+**Response:**
+```json
+{
+  "detections": [
+    {
+      "label": "happy",
+      "confidence": 0.91,
+      "bbox": [x1, y1, x2, y2]
+    }
+  ]
+}
 ```
 
 ---
 
-## 🚀 Usage
+## 🏗 Tech Stack
 
-### 🔴 Real-Time Webcam Detection
-```bash
-python src/realtime_detection.py
-```
-Press `Q` to quit the webcam window.
-
----
-
-### 🖼️ Predict on a Single Image
-```bash
-python src/predict.py --image path/to/image.jpg
-```
+| Layer | Technology |
+|---|---|
+| Model | [Ultralytics YOLO11s](https://docs.ultralytics.com) |
+| Backend | [Flask](https://flask.palletsprojects.com) + Flask-CORS |
+| Computer Vision | [OpenCV](https://opencv.org) + NumPy |
+| Frontend | Vanilla HTML · CSS · JavaScript |
+| Charts | [Chart.js](https://www.chartjs.org) |
+| Training | Kaggle GPU P100 |
 
 ---
 
-### 🎬 Predict on a Video File
-```bash
-python src/predict.py --video path/to/video.mp4
-```
+## ⚠️ Notes
 
----
-
-### 🏋️ Train the Model from Scratch
-```bash
-python src/train.py --data_dir dataset/ --epochs 50 --batch_size 64
-```
-
-Optional arguments:
-
-| Argument        | Default | Description                        |
-|----------------|---------|------------------------------------|
-| `--epochs`      | 50      | Number of training epochs          |
-| `--batch_size`  | 64      | Batch size for training            |
-| `--lr`          | 0.001   | Learning rate                      |
-| `--data_dir`    | dataset/| Path to dataset directory          |
-| `--save_path`   | models/ | Directory to save trained model    |
-
----
-
-## 📦 Dataset
-
-This project uses the **FER-2013** dataset, which contains **35,887 grayscale images** of size **48×48 pixels**, each labeled with one of 7 emotion categories.
-
-### Download
-
-You can download it from [Kaggle — FER-2013](https://www.kaggle.com/datasets/msambare/fer2013).
-
-After downloading, place it in the `dataset/` directory following this structure:
-
-```
-dataset/
-├── train/
-│   ├── angry/
-│   ├── disgust/
-│   ├── fear/
-│   ├── happy/
-│   ├── neutral/
-│   ├── sad/
-│   └── surprise/
-└── test/
-    ├── angry/
-    ├── ...
-    └── surprise/
-```
-
----
-
-## 🧱 Model Architecture
-
-The CNN model is designed with the following layers:
-
-```
-Input (48x48x1)
-    │
-    ▼
-Conv2D (32 filters, 3x3) + BatchNorm + ReLU
-    │
-    ▼
-Conv2D (64 filters, 3x3) + BatchNorm + ReLU + MaxPool + Dropout(0.25)
-    │
-    ▼
-Conv2D (128 filters, 3x3) + BatchNorm + ReLU + MaxPool + Dropout(0.25)
-    │
-    ▼
-Conv2D (256 filters, 3x3) + BatchNorm + ReLU + MaxPool + Dropout(0.25)
-    │
-    ▼
-Flatten
-    │
-    ▼
-Dense (512) + ReLU + Dropout(0.5)
-    │
-    ▼
-Dense (7) + Softmax
-```
-
-- **Optimizer:** Adam
-- **Loss Function:** Categorical Cross-Entropy
-- **Regularization:** Batch Normalization + Dropout
-
----
-
-## 📊 Results
-
-| Metric              | Value     |
-|--------------------|-----------|
-| Training Accuracy   | ~95%      |
-| Validation Accuracy | ~66%      |
-| Test Accuracy       | ~65%      |
-
-> **Note:** FER-2013 is a challenging dataset with inherent label noise. Results may vary based on training configuration.
-
-### Confusion Matrix
-
-> *(Add your confusion matrix image here)*
-```
-![Confusion Matrix](results/confusion_matrix.png)
-```
-
-### Training Curves
-
-> *(Add your training/validation accuracy and loss curves here)*
-```
-![Training Curves](results/training_curves.png)
-```
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. **Fork** the repository
-2. Create your feature branch:
-   ```bash
-   git checkout -b feature/YourFeature
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add YourFeature"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/YourFeature
-   ```
-5. Open a **Pull Request**
-
-Please make sure your code follows PEP 8 style guidelines and includes relevant docstrings/comments.
+- **Model weights are not included** in this repo. You must download or retrain them.
+- A CUDA-compatible GPU is recommended for real-time inference. CPU runs at ~4-5 detections/sec.
+- The `env` / `.env` files containing API tokens are excluded from the repo by `.gitignore`.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
-## 🙏 Acknowledgements
-
-- [FER-2013 Dataset — Kaggle](https://www.kaggle.com/datasets/msambare/fer2013)
-- [OpenCV Documentation](https://docs.opencv.org/)
-- [TensorFlow / Keras Documentation](https://www.tensorflow.org/)
-- Research inspiration: *"Challenges in Representation Learning: A report on three machine learning contests"* — Goodfellow et al.
-
----
-
-<p align="center">
-  Made with ❤️ | If you found this useful, consider giving it a ⭐
-</p>
+<div align="center">
+Made with ❤️ by <a href="https://github.com/rishavm003">rishavm003</a>
+</div>

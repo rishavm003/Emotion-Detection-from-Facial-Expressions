@@ -1,0 +1,8 @@
+kagglehub
+ultralytics
+opencv-python
+flask
+flask-cors
+python-dotenv
+matplotlib
+seaborn

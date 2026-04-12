@@ -1,0 +1,51 @@
+# ── Secrets & Environment ──────────────────────────
+.env
+env
+*.env
+.env.*
+kaggle.json
+
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pycache
+
+# ── Virtual Environment ─────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Model Weights (large binary files) ─────────────
+*.pt
+*.pth
+*.onnx
+*.torchscript
+# Allow the results folder weights to be tracked if needed:
+# !results/runs/detect/emotion_yolo11s_kaggle/weights/best.pt
+
+# ── YOLO / Ultralytics cache ────────────────────────
+runs/
+datasets/
+*.cache
+
+# ── OS & Editor ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Jupyter ─────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Logs & temp ─────────────────────────────────────
+*.log
+*.tmp
+*.bak

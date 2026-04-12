@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentientAI | Neural Emotion Analytics</title>
+    <meta name="description" content="Real-time facial emotion detection powered by YOLO11s — trained on Kaggle with 87.3% mAP50.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=12">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+
+        <!-- ── TOP NAV ── -->
+        <nav class="topnav">
+            <div class="nav-brand">
+                <div class="nav-logo">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="13" stroke="#22d3ee" stroke-width="1.5"/>
+                        <circle cx="14" cy="14" r="6" fill="#22d3ee" opacity="0.2"/>
+                        <circle cx="14" cy="14" r="3" fill="#22d3ee"/>
+                        <line x1="14" y1="1" x2="14" y2="6" stroke="#22d3ee" stroke-width="1.5"/>
+                        <line x1="14" y1="22" x2="14" y2="27" stroke="#22d3ee" stroke-width="1.5"/>
+                        <line x1="1" y1="14" x2="6" y2="14" stroke="#22d3ee" stroke-width="1.5"/>
+                        <line x1="22" y1="14" x2="27" y2="14" stroke="#22d3ee" stroke-width="1.5"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-name">SentientAI</h1>
+                    <span class="brand-sub">Neural Emotion Analytics</span>
+                </div>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('live')" id="tab-live">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                    Live Detection
+                </button>
+                <button class="nav-tab" onclick="switchTab('results')" id="tab-results">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,12 6,7 9,10 12,5 14,8"/></svg>
+                    Model Results
+                </button>
+            </div>
+
+            <div class="nav-right">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">
+                    <!-- Moon (shown in light mode) -->
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <!-- Sun (shown in dark mode) -->
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+
+                <!-- Status Badge -->
+                <div class="nav-status" id="system-status">
+                    <span class="status-dot"></span>
+                    STANDBY
+                </div>
+            </div>
+        </nav>
+
+        <!-- ════════════════════════ LIVE TAB ════════════════════════ -->
+        <div class="tab-panel active" id="panel-live">
+            <div class="live-grid">
+
+                <!-- Video Viewport -->
+                <main class="glass-card main-viewport">
+                    <div class="viewport-overlay-top">
+                        <span class="viewport-tag">CAM · LIVE</span>
+                        <span id="fps-counter" class="viewport-tag">-- FPS</span>
+                    </div>
+                    <video id="v" autoplay playsinline muted></video>
+                    <canvas id="c"></canvas>
+                    <div class="viewport-placeholder" id="cam-placeholder">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <circle cx="32" cy="32" r="30" stroke="#22d3ee" stroke-width="1" opacity="0.4"/>
+                            <path d="M20 32a12 12 0 0 1 24 0" stroke="#22d3ee" stroke-width="1.5" opacity="0.6"/>
+                            <circle cx="32" cy="32" r="5" fill="#22d3ee" opacity="0.4"/>
+                            <circle cx="32" cy="20" r="2" fill="#22d3ee"/>
+                            <circle cx="32" cy="44" r="2" fill="#22d3ee"/>
+                            <circle cx="20" cy="32" r="2" fill="#22d3ee"/>
+                            <circle cx="44" cy="32" r="2" fill="#22d3ee"/>
+                        </svg>
+                        <p>Click <strong>Initialise</strong> to activate camera</p>
+                    </div>
+                </main>
+
+                <!-- Analytics Sidebar -->
+                <aside class="sidebar">
+
+                    <!-- Primary Emotion Card -->
+                    <div class="glass-card stat-group">
+                        <p class="label-dim">Primary Emotion</p>
+                        <div id="top-emotion" class="val-hero">---</div>
+                        <div class="conf-row">
+                            <span class="label-dim">Confidence</span>
+                            <span id="confidence-val" style="color: var(--accent);">0%</span>
+                        </div>
+                        <div class="conf-bar-bg">
+                            <div class="conf-bar-fill" id="conf-bar" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Emotion Bars -->
+                    <div class="glass-card emotion-bars-card">
+                        <p class="label-dim" style="padding:1.25rem 1.25rem 0.75rem;">Detection Feed</p>
+                        <div id="emotion-bars" class="emotion-bars">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- History Chart -->
+                    <div class="glass-card chart-card">
+                        <div class="chart-header">
+                            <p class="label-dim">Confidence History</p>
+                            <span class="chart-tag">30s</span>
+                        </div>
+                        <div style="height: 160px; position: relative;">
+                            <canvas id="historyChart"></canvas>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Controls Bar -->
+                <div class="controls-bar">
+                    <button id="start-btn" class="btn btn-primary active-pulse" onclick="start()">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="9" cy="9" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5"/></svg>
+                        INITIALISE NEURAL LINK
+                    </button>
+                    <button id="flip-btn" class="btn btn-glass" onclick="toggleMirror()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M3 5l-2 3 2 3M13 5l2 3-2 3"/></svg>
+                        FLIP VIEW
+                    </button>
+                    <button id="snapshot-btn" class="btn btn-glass" onclick="snapshot()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="10" rx="2"/><circle cx="8" cy="9" r="2.5"/><path d="M5 4l1.5-2h3L11 4"/></svg>
+                        SNAPSHOT
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger" onclick="stopCamera()" style="display:none">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>
+                        STOP
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ════════════════════════ RESULTS TAB ════════════════════════ -->
+        <div class="tab-panel" id="panel-results">
+            <div class="results-page">
+
+                <!-- Hero Metrics Row -->
+                <div class="metrics-hero-row">
+                    <div class="metric-hero-card" style="--accent-clr: #22d3ee">
+                        <div class="mhc-icon">📐</div>
+                        <div class="mhc-val">87.3%</div>
+                        <div class="mhc-label">mAP@50</div>
+                        <div class="mhc-sub">Final Epoch</div>
+                    </div>
+                    <div class="metric-hero-card" style="--accent-clr: #a78bfa">
+                        <div class="mhc-icon">🎯</div>
+                        <div class="mhc-val">69.1%</div>
+                        <div class="mhc-label">mAP@50-95</div>
+                        <div class="mhc-sub">Final Epoch</div>
+                    </div>
+                    <div class="metric-hero-card" style="--accent-clr: #4ade80">
+                        <div class="mhc-icon">🔬</div>
+                        <div class="mhc-val">80.3%</div>
+                        <div class="mhc-label">Precision</div>
+                        <div class="mhc-sub">Epoch 20</div>
+                    </div>
+                    <div class="metric-hero-card" style="--accent-clr: #fb923c">
+                        <div class="mhc-icon">📡</div>
+                        <div class="mhc-val">80.5%</div>
+                        <div class="mhc-label">Recall</div>
+                        <div class="mhc-sub">Epoch 20</div>
+                    </div>
+                    <div class="metric-hero-card" style="--accent-clr: #facc15">
+                        <div class="mhc-icon">⚡</div>
+                        <div class="mhc-val">20</div>
+                        <div class="mhc-label">Epochs</div>
+                        <div class="mhc-sub">Batch 50 · GPU</div>
+                    </div>
+                    <div class="metric-hero-card" style="--accent-clr: #f472b6">
+                        <div class="mhc-icon">🧠</div>
+                        <div class="mhc-val">9</div>
+                        <div class="mhc-label">Classes</div>
+                        <div class="mhc-sub">Emotion Labels</div>
+                    </div>
+                </div>
+
+                <!-- Training Charts Section -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Training Curves</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="results-charts-grid">
+                    <div class="glass-card res-img-card full-width-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Training & Validation Metrics — All Epochs</span>
+                            <span class="ric-tag">YOLO11s</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/results.png') }}" alt="Training results" class="res-img">
+                    </div>
+                </div>
+
+                <!-- Live Training Chart (drawn from CSV data) -->
+                <div class="glass-card res-chart-interactive" style="padding: 1.5rem;">
+                    <div class="chart-header" style="margin-bottom:1rem">
+                        <p class="label-dim">mAP50 Progression (Interactive)</p>
+                        <div style="display:flex;gap:.5rem">
+                            <span class="ric-tag">Train</span>
+                            <span class="ric-tag" style="background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.3);color:#a78bfa">Val</span>
+                        </div>
+                    </div>
+                    <div style="height:250px;position:relative">
+                        <canvas id="mapChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Confusion Matrix + F1 Curve Row -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Evaluation Charts</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="results-charts-grid two-col">
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Confusion Matrix (Normalized)</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/confusion_matrix_normalized.png') }}" alt="Confusion matrix" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">F1-Confidence Curve</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/BoxF1_curve.png') }}" alt="F1 curve" class="res-img">
+                    </div>
+                </div>
+
+                <div class="results-charts-grid two-col">
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Precision-Recall Curve</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/BoxPR_curve.png') }}" alt="PR curve" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Precision-Confidence Curve</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/BoxP_curve.png') }}" alt="P curve" class="res-img">
+                    </div>
+                </div>
+
+                <!-- Per-Class Accuracy -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Per-Class Accuracy</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="glass-card per-class-card">
+                    <div id="per-class-bars" class="per-class-grid"></div>
+                </div>
+
+                <!-- Validation Samples -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Validation Predictions</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="results-charts-grid two-col">
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Val Batch 0 — Predictions</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/val_batch0_pred.jpg') }}" alt="Validation predictions batch 0" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Val Batch 0 — Ground Truth</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/val_batch0_labels.jpg') }}" alt="Validation labels batch 0" class="res-img">
+                    </div>
+                </div>
+                <div class="results-charts-grid two-col">
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Val Batch 1 — Predictions</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/val_batch1_pred.jpg') }}" alt="Validation predictions batch 1" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header">
+                            <span class="ric-title">Val Batch 2 — Predictions</span>
+                        </div>
+                        <img src="{{ url_for('static', filename='results/val_batch2_pred.jpg') }}" alt="Validation predictions batch 2" class="res-img">
+                    </div>
+                </div>
+
+                <!-- Training Samples -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Training Samples</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="results-charts-grid three-col">
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header"><span class="ric-title">Train Batch 0</span></div>
+                        <img src="{{ url_for('static', filename='results/train_batch0.jpg') }}" alt="Train batch 0" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header"><span class="ric-title">Train Batch 1</span></div>
+                        <img src="{{ url_for('static', filename='results/train_batch1.jpg') }}" alt="Train batch 1" class="res-img">
+                    </div>
+                    <div class="glass-card res-img-card">
+                        <div class="ric-header"><span class="ric-title">Train Batch 2</span></div>
+                        <img src="{{ url_for('static', filename='results/train_batch2.jpg') }}" alt="Train batch 2" class="res-img">
+                    </div>
+                </div>
+
+                <!-- Config Summary -->
+                <div class="res-section-title">
+                    <span class="rst-line"></span>
+                    <span>Training Configuration</span>
+                    <span class="rst-line"></span>
+                </div>
+                <div class="glass-card config-grid-card">
+                    <div class="config-grid">
+                        <div class="cfg-item"><span class="cfg-k">Model</span><span class="cfg-v">YOLO11s</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Platform</span><span class="cfg-v">Kaggle GPU</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Epochs</span><span class="cfg-v">20</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Batch Size</span><span class="cfg-v">50</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Image Size</span><span class="cfg-v">640 × 640</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Optimizer</span><span class="cfg-v">Auto (AdamW)</span></div>
+                        <div class="cfg-item"><span class="cfg-k">LR₀</span><span class="cfg-v">0.01</span></div>
+                        <div class="cfg-item"><span class="cfg-k">LRf</span><span class="cfg-v">0.01</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Warmup Epochs</span><span class="cfg-v">3.0</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Patience</span><span class="cfg-v">100</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Pretrained</span><span class="cfg-v">Yes (COCO)</span></div>
+                        <div class="cfg-item"><span class="cfg-k">AMP</span><span class="cfg-v">Enabled</span></div>
+                        <div class="cfg-item"><span class="cfg-k">IoU Threshold</span><span class="cfg-v">0.70</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Workers</span><span class="cfg-v">10</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Mosaic Aug.</span><span class="cfg-v">1.0</span></div>
+                        <div class="cfg-item"><span class="cfg-k">Flip LR</span><span class="cfg-v">0.5</span></div>
+                    </div>
+                </div>
+
+                <div style="height:3rem"></div>
+            </div>
+        </div>
+
+    </div><!-- /app-shell -->
+
+    <script>
+    // ── TAB SWITCHING ──
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('panel-' + tab).classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+        if (tab === 'results' && !mapChartInited) initResultsCharts();
+    }
+
+    // ── LIVE DETECTION ──
+    const video = document.getElementById('v');
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const statusEl = document.getElementById('system-status');
+    const topEmotionEl = document.getElementById('top-emotion');
+    const confidenceEl = document.getElementById('confidence-val');
+    const confBarEl = document.getElementById('conf-bar');
+    const camPlaceholder = document.getElementById('cam-placeholder');
+
+    let isAnalyzing = false;
+    let isMirrored = false;
+    let histChart = null;
+
+    // Perf tracking
+    let renderFrames = 0, inferFrames = 0, lastPerfTime = Date.now();
+
+    // Last known detections — rendered every rAF, updated when inference returns
+    let lastDetections = [];
+    let inferenceInFlight = false;  // prevent request pile-up
+
+    const emotionColors = {
+        'happy': '#facc15', 'sad': '#60a5fa', 'angry': '#f87171',
+        'surprised': '#a78bfa', 'natural': '#2dd4bf', 'fear': '#fb923c',
+        'disgust': '#4ade80', 'sleepy': '#94a3b8', 'contempt': '#ec4899',
+        'person': '#22d3ee'
+    };
+
+    function initLiveChart() {
+        const chartCtx = document.getElementById('historyChart').getContext('2d');
+        histChart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: Array(40).fill(''),
+                datasets: [{
+                    data: Array(40).fill(0),
+                    borderColor: '#22d3ee',
+                    borderWidth: 2,
+                    fill: true,
+                    backgroundColor: 'rgba(34,211,238,0.08)',
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    y: { min: 0, max: 100, display: false },
+                    x: { display: false }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    async function start() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                canvas.width = video.clientWidth;
+                canvas.height = video.clientHeight;
+                video.play();
+                camPlaceholder.style.display = 'none';
+                statusEl.innerHTML = '<span class="status-dot live"></span>LIVE';
+                document.getElementById('start-btn').style.display = 'none';
+                document.getElementById('stop-btn').style.display = 'flex';
+                isAnalyzing = true;
+                requestAnimationFrame(renderLoop);  // smooth render loop
+                scheduleInference();               // independent inference loop
+            };
+        } catch (e) { alert('Camera Error: ' + e.message); }
+    }
+
+    function stopCamera() {
+        isAnalyzing = false;
+        lastDetections = [];
+        inferenceInFlight = false;
+        if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        topEmotionEl.textContent = '---';
+        topEmotionEl.style.color = '';
+        confidenceEl.textContent = '0%';
+        confBarEl.style.width = '0%';
+        camPlaceholder.style.display = 'flex';
+        statusEl.innerHTML = '<span class="status-dot"></span>STANDBY';
+        document.getElementById('start-btn').style.display = 'flex';
+        document.getElementById('stop-btn').style.display = 'none';
+    }
+
+    // ── RENDER LOOP: runs at monitor refresh rate (60fps) ──
+    function renderLoop() {
+        if (!isAnalyzing) return;
+
+        // Redraw last known detections onto canvas every frame
+        drawDetections(lastDetections);
+
+        // Update FPS display
+        renderFrames++;
+        const now = Date.now();
+        if (now - lastPerfTime >= 1000) {
+            document.getElementById('fps-counter').textContent = renderFrames + ' FPS';
+            renderFrames = 0;
+            inferFrames = 0;
+            lastPerfTime = now;
+        }
+
+        requestAnimationFrame(renderLoop);
+    }
+
+    // ── INFERENCE LOOP: fires as fast as server responds, never blocks render ──
+    function scheduleInference() {
+        if (!isAnalyzing) return;
+        if (inferenceInFlight) {
+            // retry in 16ms if a request is already in flight
+            setTimeout(scheduleInference, 16);
+            return;
+        }
+        runInference();
+    }
+
+    async function runInference() {
+        if (!isAnalyzing) return;
+        inferenceInFlight = true;
+
+        // Capture at reduced resolution (480px wide) to cut encode + server decode time
+        const INFER_W = 480;
+        const scale = INFER_W / video.videoWidth;
+        const tmpC = document.createElement('canvas');
+        tmpC.width  = INFER_W;
+        tmpC.height = Math.round(video.videoHeight * scale);
+        tmpC.getContext('2d').drawImage(video, 0, 0, tmpC.width, tmpC.height);
+
+        try {
+            const r = await fetch('/detect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: tmpC.toDataURL('image/jpeg', 0.65) })
+            });
+            const d = await r.json();
+
+            // Scale bboxes back to original video resolution
+            const invScale = 1 / scale;
+            const scaled = (d.detections || []).map(det => ({
+                ...det,
+                bbox: [det.bbox[0]*invScale, det.bbox[1]*invScale,
+                       det.bbox[2]*invScale, det.bbox[3]*invScale]
+            }));
+
+            lastDetections = scaled;
+            updateSidebar(scaled);
+            inferFrames++;
+        } catch(e) {}
+
+        inferenceInFlight = false;
+        // Chain next inference immediately after this one finishes
+        if (isAnalyzing) setTimeout(scheduleInference, 0);
+    }
+
+    // ── DRAW: called by render loop every frame using last known detections ──
+    function drawDetections(detections) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!detections || detections.length === 0) return;
+
+        ctx.font = 'bold 14px Outfit, sans-serif';
+        ctx.lineWidth = 2;
+
+        detections.forEach(det => {
+            const [x1, y1, x2, y2] = det.bbox;
+            const scaleX = canvas.width / video.videoWidth;
+            const scaleY = canvas.height / video.videoHeight;
+            let x = isMirrored ? canvas.width - (x2 * scaleX) : x1 * scaleX;
+            let w = (x2 - x1) * scaleX;
+            let y = y1 * scaleY;
+            let h = (y2 - y1) * scaleY;
+            const col = emotionColors[det.label.toLowerCase()] || '#a855f7';
+            ctx.strokeStyle = col;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(x, y, w, h);
+            ctx.setLineDash([]);
+            const label = det.label.toUpperCase() + ' ' + Math.round(det.confidence * 100) + '%';
+            const tw = ctx.measureText(label).width;
+            ctx.fillStyle = col + 'cc';
+            ctx.beginPath();
+            ctx.roundRect(x, y - 24, tw + 12, 22, 4);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.fillText(label, x + 6, y - 7);
+        });
+    }
+
+    // ── SIDEBAR: updated only when new inference result arrives ──
+    function updateSidebar(detections) {
+        const emotionBarEl = document.getElementById('emotion-bars');
+        emotionBarEl.innerHTML = '';
+
+        if (detections.length > 0) {
+            const top = detections.reduce((p, c) => (p.confidence > c.confidence) ? p : c);
+            const color = emotionColors[top.label.toLowerCase()] || '#a855f7';
+
+            topEmotionEl.textContent = top.label.toUpperCase();
+            topEmotionEl.style.color = color;
+            const pct = Math.round(top.confidence * 100);
+            confidenceEl.textContent = pct + '%';
+            confBarEl.style.width = pct + '%';
+            confBarEl.style.background = color;
+
+            if (histChart) {
+                histChart.data.datasets[0].data.push(pct);
+                histChart.data.datasets[0].data.shift();
+                histChart.data.datasets[0].borderColor = color;
+                histChart.data.datasets[0].backgroundColor = color + '18';
+                histChart.update('none');
+            }
+
+            const sorted = [...detections].sort((a, b) => b.confidence - a.confidence);
+            sorted.forEach(det => {
+                const c = emotionColors[det.label.toLowerCase()] || '#a855f7';
+                const p = Math.round(det.confidence * 100);
+                emotionBarEl.innerHTML += `
+                    <div class="eb-row">
+                        <span class="eb-label">${det.label}</span>
+                        <div class="eb-bar-bg"><div class="eb-bar-fill" style="width:${p}%;background:${c}"></div></div>
+                        <span class="eb-pct" style="color:${c}">${p}%</span>
+                    </div>`;
+            });
+        } else {
+            emotionBarEl.innerHTML = '<p class="eb-empty">No face detected…</p>';
+        }
+    }
+
+    function toggleMirror() {
+        isMirrored = !isMirrored;
+        video.style.transform = isMirrored ? 'scaleX(-1)' : 'none';
+    }
+
+    function snapshot() {
+        const link = document.createElement('a');
+        link.download = `SentientAI-${Date.now()}.jpg`;
+        const snapC = document.createElement('canvas');
+        snapC.width = video.videoWidth; snapC.height = video.videoHeight;
+        const sCtx = snapC.getContext('2d');
+        if (isMirrored) { sCtx.translate(snapC.width, 0); sCtx.scale(-1, 1); }
+        sCtx.drawImage(video, 0, 0);
+        if (isMirrored) sCtx.setTransform(1, 0, 0, 1, 0, 0);
+        sCtx.drawImage(canvas, 0, 0, snapC.width, snapC.height);
+        link.href = snapC.toDataURL('image/jpeg', 0.9);
+        link.click();
+    }
+
+    window.onresize = () => { canvas.width = video.clientWidth; canvas.height = video.clientHeight; };
+
+    // ── RESULTS CHARTS ──
+    let mapChartInited = false;
+
+    // Per-epoch data from results.csv
+    const trainingData = {
+        epochs: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+        mAP50: [0.54596,0.4614,0.54229,0.68275,0.75213,0.79565,0.80606,0.83046,0.83431,0.84761,0.84973,0.85286,0.85441,0.85641,0.85961,0.86251,0.863,0.86826,0.87126,0.87349],
+        mAP5095: [0.37094,0.29818,0.35631,0.46313,0.55651,0.59998,0.60821,0.63216,0.6324,0.65593,0.65703,0.66046,0.66491,0.66818,0.67476,0.6775,0.67873,0.68364,0.68772,0.69106],
+        precision: [0.48616,0.46422,0.52355,0.60562,0.68816,0.73041,0.7178,0.76698,0.78856,0.79778,0.77438,0.78702,0.79219,0.79509,0.78768,0.79005,0.79312,0.78878,0.79918,0.80284],
+        recall: [0.55973,0.55321,0.51324,0.63551,0.69423,0.71347,0.75239,0.75993,0.74665,0.75535,0.77794,0.77015,0.77127,0.77787,0.7933,0.79068,0.79782,0.80973,0.80113,0.80504],
+        trainLoss: [0.98953,0.95138,0.99066,0.95707,0.88997,0.85279,0.83194,0.81099,0.79406,0.77849,0.79828,0.77373,0.75771,0.74572,0.73346,0.71901,0.70526,0.69316,0.67852,0.66446],
+        valLoss: [1.13315,1.23118,1.21996,1.13315,0.98276,0.9391,0.92815,0.90392,0.89355,0.87445,0.87432,0.85908,0.84915,0.84157,0.83565,0.83139,0.82868,0.82675,0.82598,0.82322]
+    };
+
+    const perClassAcc = [
+        { name: 'sleepy',    acc: 95, color: '#94a3b8' },
+        { name: 'happy',     acc: 91, color: '#facc15' },
+        { name: 'angry',     acc: 86, color: '#f87171' },
+        { name: 'fear',      acc: 84, color: '#fb923c' },
+        { name: 'sad',       acc: 83, color: '#60a5fa' },
+        { name: 'surprised', acc: 80, color: '#a78bfa' },
+        { name: 'disgust',   acc: 74, color: '#4ade80' },
+        { name: 'natural',   acc: 69, color: '#2dd4bf' },
+        { name: 'contempt',  acc: 67, color: '#ec4899' },
+    ];
+
+    function initResultsCharts() {
+        mapChartInited = true;
+
+        // mAP chart
+        const mapCtx = document.getElementById('mapChart').getContext('2d');
+        new Chart(mapCtx, {
+            type: 'line',
+            data: {
+                labels: trainingData.epochs,
+                datasets: [
+                    {
+                        label: 'mAP@50',
+                        data: trainingData.mAP50.map(v => +(v*100).toFixed(2)),
+                        borderColor: '#22d3ee',
+                        backgroundColor: 'rgba(34,211,238,0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#22d3ee',
+                    },
+                    {
+                        label: 'mAP@50-95',
+                        data: trainingData.mAP5095.map(v => +(v*100).toFixed(2)),
+                        borderColor: '#a78bfa',
+                        backgroundColor: 'rgba(167,139,250,0.05)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#a78bfa',
+                        borderDash: [5,3]
+                    },
+                    {
+                        label: 'Precision',
+                        data: trainingData.precision.map(v => +(v*100).toFixed(2)),
+                        borderColor: '#4ade80',
+                        borderWidth: 1.5,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 2,
+                        borderDash: [3,3]
+                    },
+                    {
+                        label: 'Recall',
+                        data: trainingData.recall.map(v => +(v*100).toFixed(2)),
+                        borderColor: '#fb923c',
+                        borderWidth: 1.5,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 2,
+                        borderDash: [3,3]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { family: 'Outfit' }, boxWidth: 14 }
+                    },
+                    tooltip: {
+                        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 30, max: 100,
+                        ticks: { color: '#94a3b8', callback: v => v + '%' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    x: {
+                        ticks: { color: '#94a3b8', callback: (_, i) => 'E' + (i+1) },
+                        grid: { color: 'rgba(255,255,255,0.03)' }
+                    }
+                }
+            }
+        });
+
+        // Per-class bars
+        const pcEl = document.getElementById('per-class-bars');
+        perClassAcc.forEach(cls => {
+            pcEl.innerHTML += `
+                <div class="pcb-row">
+                    <div class="pcb-top">
+                        <span class="pcb-name" style="color:${cls.color}">${cls.name.charAt(0).toUpperCase() + cls.name.slice(1)}</span>
+                        <span class="pcb-pct" style="color:${cls.color}">${cls.acc}%</span>
+                    </div>
+                    <div class="pcb-bar-bg">
+                        <div class="pcb-bar-fill" style="width:${cls.acc}%;background:${cls.color}"></div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    // ── THEME TOGGLE ──
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('sai-theme', next);
+    }
+
+    // Restore saved theme — default is always LIGHT for first-time visitors
+    (function() {
+        const saved = localStorage.getItem('sai-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+    })();
+
+    // Init
+    initLiveChart();
+    </script>
+</body>
+</html>

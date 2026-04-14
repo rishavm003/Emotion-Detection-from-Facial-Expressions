@@ -40,6 +40,10 @@
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,12 6,7 9,10 12,5 14,8"/></svg>
                     Model Results
                 </button>
+                <button class="nav-tab" onclick="switchTab('eval')" id="tab-eval">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12" rx="1"/><line x1="6" y1="5" x2="10" y2="5"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="6" y1="11" x2="10" y2="11"/></svg>
+                    Evaluation Report
+                </button>
             </div>
 
             <div class="nav-right">
@@ -360,6 +364,11 @@
             </div>
         </div>
 
+        <!-- ════════════════════════ EVALUATION TAB ════════════════════════ -->
+        <div class="tab-panel" id="panel-eval" style="padding:0; overflow:hidden; height:calc(100vh - 120px);">
+            <iframe src="/evaluation-report" style="width:100%; height:100%; border:none;" title="Evaluation Report"></iframe>
+        </div>
+
     </div><!-- /app-shell -->
 
     <script>
@@ -367,8 +376,13 @@
     function switchTab(tab) {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('panel-' + tab).classList.add('active');
-        document.getElementById('tab-' + tab).classList.add('active');
+        
+        const targetPanel = document.getElementById('panel-' + tab);
+        const targetTab = document.getElementById('tab-' + tab);
+        
+        if (targetPanel) targetPanel.classList.add('active');
+        if (targetTab) targetTab.classList.add('active');
+        
         if (tab === 'results' && !mapChartInited) initResultsCharts();
     }
 

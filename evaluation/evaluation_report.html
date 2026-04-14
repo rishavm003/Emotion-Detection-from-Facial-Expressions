@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SentientAI - Evaluation Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+  :root{
+    --bg:#f0f4f8;--card:#fff;--accent:#6d28d9;--accent2:#0891b2;
+    --text:#0f172a;--dim:#64748b;--border:#e2e8f0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);}
+  .container{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+  /* Header */
+  .report-header{
+    background:linear-gradient(135deg,#4c1d95 0%,#0e7490 100%);
+    color:#fff;padding:2.5rem 2rem;border-radius:20px;margin-bottom:2.5rem;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+  }
+  .report-header h1{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;}
+  .report-header p{opacity:.8;font-size:.9rem;margin-top:.25rem;}
+  .report-badge{background:rgba(255,255,255,.2);padding:.5rem 1.2rem;border-radius:30px;font-size:.85rem;font-weight:600;}
+  /* Section */
+  .section{margin-bottom:2.5rem;}
+  .section-title{
+    font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;
+    color:var(--accent);text-transform:uppercase;letter-spacing:.08em;
+    margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;
+  }
+  .section-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--accent),transparent);}
+  /* Hero metrics */
+  .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;}
+  .metric-card{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:1.25rem 1rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06);
+    transition:transform .2s;
+  }
+  .metric-card:hover{transform:translateY(-3px);}
+  .metric-val{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;color:var(--accent);}
+  .metric-label{font-size:.78rem;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:.3rem;}
+  /* Tables */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:.88rem;}
+  th{background:#f8fafc;color:var(--dim);text-transform:uppercase;font-size:.75rem;
+      letter-spacing:.08em;padding:.75rem 1rem;text-align:left;border-bottom:2px solid var(--border);}
+  td{padding:.7rem 1rem;border-bottom:1px solid var(--border);}
+  tr:hover td{background:#f8fafc;}
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+         padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+  .img-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+  @media(max-width:700px){.img-grid{grid-template-columns:1fr;}}
+  /* Footer */
+  .footer{text-align:center;color:var(--dim);font-size:.82rem;margin-top:3rem;}
+  .tag{display:inline-block;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;
+        font-weight:700;background:#ede9fe;color:#6d28d9;margin:.15rem;}
+  .standard-badge{
+    display:inline-flex;align-items:center;gap:.4rem;
+    background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;
+    padding:.3rem .9rem;border-radius:20px;font-size:.78rem;font-weight:600;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div>
+      <h1>SentientAI - Evaluation Report</h1>
+      <p>YOLO11s Facial Emotion Detection - 9 Classes</p>
+      <p style="margin-top:.5rem;opacity:.7;font-size:.8rem">Generated: 2026-04-12 20:51:58</p>
+    </div>
+    <div style="text-align:right">
+      <div class="report-badge">Source: training_csv</div>
+      <div style="margin-top:.5rem;font-size:.8rem;opacity:.7">COCO-standard mAP evaluation</div>
+    </div>
+  </div>
+
+  <!-- Standards used -->
+  <div class="section">
+    <div class="section-title">Evaluation Standards Applied</div>
+    <div class="card" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+      <span class="standard-badge">[OK] COCO mAP@50</span>
+      <span class="standard-badge">[OK] COCO mAP@50-95</span>
+      <span class="standard-badge">[OK] Per-Class F1 Score</span>
+      <span class="standard-badge">[OK] Macro-Average F1</span>
+      <span class="standard-badge">[OK] Weighted-Average F1</span>
+      <span class="standard-badge">[OK] Normalised Confusion Matrix</span>
+      <span class="standard-badge">[OK] Precision-Recall Analysis</span>
+      <span class="standard-badge">[OK] Per-Epoch Convergence Analysis</span>
+    </div>
+  </div>
+
+  <!-- Hero Metrics -->
+  <div class="section">
+    <div class="section-title">Core Detection Metrics (COCO Standard)</div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val" style="color:#6d28d9">87.3%</div>
+        <div class="metric-label">mAP @ 50</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#0891b2">69.1%</div>
+        <div class="metric-label">mAP @ 50-95</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#16a34a">80.3%</div>
+        <div class="metric-label">Precision</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#ea580c">80.5%</div>
+        <div class="metric-label">Recall</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#7c3aed">82.2%</div>
+        <div class="metric-label">Macro F1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:#0369a1">83.2%</div>
+        <div class="metric-label">Weighted F1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-class table -->
+  <div class="section">
+    <div class="section-title">Per-Class Classification Report</div>
+    <div class="card table-wrap">
+      <table>
+        <thead>
+          <tr><th>Emotion Class</th><th>Precision</th><th>Recall</th><th>F1 Score</th></tr>
+        </thead>
+        <tbody>
+      <tr>
+        <td><strong>Angry</strong></td>
+        <td>86.0%</td>
+        <td>86.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">86.0%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Contempt</strong></td>
+        <td>68.4%</td>
+        <td>67.0%</td>
+        <td><span style="background:#eab308;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">67.7%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Disgust</strong></td>
+        <td>74.7%</td>
+        <td>74.0%</td>
+        <td><span style="background:#eab308;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">74.4%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Fear</strong></td>
+        <td>87.5%</td>
+        <td>84.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">85.7%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Happy</strong></td>
+        <td>92.9%</td>
+        <td>91.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">91.9%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Natural</strong></td>
+        <td>72.6%</td>
+        <td>69.0%</td>
+        <td><span style="background:#eab308;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">70.8%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sad</strong></td>
+        <td>83.8%</td>
+        <td>83.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">83.4%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Sleepy</strong></td>
+        <td>100.0%</td>
+        <td>95.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">97.4%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Surprised</strong></td>
+        <td>84.2%</td>
+        <td>80.0%</td>
+        <td><span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:20px;font-weight:700">82.1%</span></td>
+      </tr></tbody>
+        <tfoot>
+          <tr style="background:#f1f5f9;font-weight:600">
+            <td>Macro Average</td>
+            <td>83.4%</td>
+            <td>81.0%</td>
+            <td>82.2%</td>
+          </tr>
+          <tr style="background:#f1f5f9;font-weight:600">
+            <td>Weighted Average</td>
+            <td>-</td>
+            <td>-</td>
+            <td>83.2%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="section">
+    <div class="section-title">Visual Analysis</div>
+    <div class="img-grid">
+      <div class="card" style="padding:1rem">
+        <p style="font-weight:600;margin-bottom:.75rem;color:var(--dim)">Per-Class F1 Score</p>
+        <img src="per_class_f1.png" alt="" style="width:100%;border-radius:12px;">
+      </div>
+      <div class="card" style="padding:1rem">
+        <p style="font-weight:600;margin-bottom:.75rem;color:var(--dim)">Confusion Matrix (Normalised)</p>
+        <img src="confusion_matrix_eval.png" alt="" style="width:100%;border-radius:12px;">
+      </div>
+    </div>
+    <div class="card" style="padding:1rem;margin-top:1.25rem">
+      <p style="font-weight:600;margin-bottom:.75rem;color:var(--dim)">Training & Validation Curves (20 Epochs)</p>
+      <img src="training_curves_eval.png" alt="" style="width:100%;border-radius:12px;">
+    </div>
+  </div>
+
+  <!-- Epoch-level table -->
+  <div class="section">
+    <div class="section-title">Epoch-by-Epoch Training Log</div>
+    <div class="card table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Epoch</th><th>mAP@50</th><th>mAP@50-95</th>
+            <th>Precision</th><th>Recall</th>
+            <th>Train Box</th><th>Train Cls</th>
+            <th>Val Box</th><th>Val Cls</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td><td>54.60%</td><td>37.09%</td>
+            <td>48.62%</td><td>55.97%</td>
+            <td>0.9895</td><td>1.8489</td>
+            <td>1.1332</td><td>1.3012</td>
+          </tr>
+          <tr>
+            <td>2</td><td>46.14%</td><td>29.82%</td>
+            <td>46.42%</td><td>55.32%</td>
+            <td>0.9514</td><td>1.4095</td>
+            <td>1.2312</td><td>1.6045</td>
+          </tr>
+          <tr>
+            <td>3</td><td>54.23%</td><td>35.63%</td>
+            <td>52.35%</td><td>51.32%</td>
+            <td>0.9907</td><td>1.4523</td>
+            <td>1.2200</td><td>1.4216</td>
+          </tr>
+          <tr>
+            <td>4</td><td>68.27%</td><td>46.31%</td>
+            <td>60.56%</td><td>63.55%</td>
+            <td>0.9571</td><td>1.3764</td>
+            <td>1.1332</td><td>1.0507</td>
+          </tr>
+          <tr>
+            <td>5</td><td>75.21%</td><td>55.65%</td>
+            <td>68.82%</td><td>69.42%</td>
+            <td>0.8900</td><td>1.2459</td>
+            <td>0.9828</td><td>0.9252</td>
+          </tr>
+          <tr>
+            <td>6</td><td>79.56%</td><td>60.00%</td>
+            <td>73.04%</td><td>71.35%</td>
+            <td>0.8528</td><td>1.1656</td>
+            <td>0.9391</td><td>0.8423</td>
+          </tr>
+          <tr>
+            <td>7</td><td>80.61%</td><td>60.82%</td>
+            <td>71.78%</td><td>75.24%</td>
+            <td>0.8319</td><td>1.1153</td>
+            <td>0.9282</td><td>0.8268</td>
+          </tr>
+          <tr>
+            <td>8</td><td>83.05%</td><td>63.22%</td>
+            <td>76.70%</td><td>75.99%</td>
+            <td>0.8110</td><td>1.0739</td>
+            <td>0.9039</td><td>0.7676</td>
+          </tr>
+          <tr>
+            <td>9</td><td>83.43%</td><td>63.24%</td>
+            <td>78.86%</td><td>74.67%</td>
+            <td>0.7941</td><td>1.0378</td>
+            <td>0.8935</td><td>0.7473</td>
+          </tr>
+          <tr>
+            <td>10</td><td>84.76%</td><td>65.59%</td>
+            <td>79.78%</td><td>75.53%</td>
+            <td>0.7785</td><td>1.0073</td>
+            <td>0.8744</td><td>0.7243</td>
+          </tr>
+          <tr>
+            <td>11</td><td>84.97%</td><td>65.70%</td>
+            <td>77.44%</td><td>77.79%</td>
+            <td>0.7983</td><td>0.7899</td>
+            <td>0.8743</td><td>0.7061</td>
+          </tr>
+          <tr>
+            <td>12</td><td>85.29%</td><td>66.05%</td>
+            <td>78.70%</td><td>77.02%</td>
+            <td>0.7737</td><td>0.7603</td>
+            <td>0.8591</td><td>0.6984</td>
+          </tr>
+          <tr>
+            <td>13</td><td>85.44%</td><td>66.49%</td>
+            <td>79.22%</td><td>77.13%</td>
+            <td>0.7577</td><td>0.7226</td>
+            <td>0.8491</td><td>0.6925</td>
+          </tr>
+          <tr>
+            <td>14</td><td>85.64%</td><td>66.82%</td>
+            <td>79.51%</td><td>77.79%</td>
+            <td>0.7457</td><td>0.6945</td>
+            <td>0.8416</td><td>0.6869</td>
+          </tr>
+          <tr>
+            <td>15</td><td>85.96%</td><td>67.48%</td>
+            <td>78.77%</td><td>79.33%</td>
+            <td>0.7335</td><td>0.6640</td>
+            <td>0.8357</td><td>0.6811</td>
+          </tr>
+          <tr>
+            <td>16</td><td>86.25%</td><td>67.75%</td>
+            <td>79.01%</td><td>79.07%</td>
+            <td>0.7190</td><td>0.6366</td>
+            <td>0.8314</td><td>0.6742</td>
+          </tr>
+          <tr>
+            <td>17</td><td>86.30%</td><td>67.87%</td>
+            <td>79.31%</td><td>79.78%</td>
+            <td>0.7053</td><td>0.6054</td>
+            <td>0.8287</td><td>0.6675</td>
+          </tr>
+          <tr>
+            <td>18</td><td>86.83%</td><td>68.36%</td>
+            <td>78.88%</td><td>80.97%</td>
+            <td>0.6932</td><td>0.5749</td>
+            <td>0.8267</td><td>0.6610</td>
+          </tr>
+          <tr>
+            <td>19</td><td>87.13%</td><td>68.77%</td>
+            <td>79.92%</td><td>80.11%</td>
+            <td>0.6785</td><td>0.5412</td>
+            <td>0.8260</td><td>0.6542</td>
+          </tr>
+          <tr>
+            <td>20</td><td>87.35%</td><td>69.11%</td>
+            <td>80.28%</td><td>80.50%</td>
+            <td>0.6645</td><td>0.5153</td>
+            <td>0.8232</td><td>0.6491</td>
+          </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="section">
+    <div class="section-title">Evaluation Summary</div>
+    <div class="card">
+      <ul style="line-height:2;padding-left:1.25rem">
+        <li>Model achieves <strong>87.3% mAP@50</strong> - strong performance under the COCO-standard IoU=0.50 threshold.</li>
+        <li>Weighted F1 of <strong>83.2%</strong> confirms consistent classification across all 9 emotion classes.</li>
+        <li>Best performing class: <strong>Sleepy (95% recall)</strong> - likely due to distinctive visual features (closed eyes).</li>
+        <li>Most challenging class: <strong>Contempt (67% recall)</strong> - subtle facial cues overlap with Natural expressions.</li>
+        <li>Happy achieves <strong>91% recall</strong> - widest smile-to-emotion mapping in the dataset.</li>
+        <li>Training loss converged smoothly across 20 epochs with no sign of overfitting.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>SentientAI Evaluation Report - Generated 2026-04-12 20:51:58</p>
+    <p style="margin-top:.5rem">
+      <span class="tag">YOLO11s</span>
+      <span class="tag">COCO mAP</span>
+      <span class="tag">F1 Classification</span>
+      <span class="tag">20 Epochs</span>
+      <span class="tag">9 Emotion Classes</span>
+      <span class="tag">Kaggle GPU</span>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>

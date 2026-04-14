@@ -1,36 +1,51 @@
+import os
+import sys
+
+print("--- Starting SentientAI Web Server...", flush=True)
+print("--- Loading core libraries (this may take 15-30 seconds)...", flush=True)
+
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from ultralytics import YOLO
-import cv2
-import numpy as np
-import base64
-import os
+
+try:
+    from utils.onnx_engine import YOLO11ONNX
+    import cv2
+    import numpy as np
+    import base64
+except ImportError as e:
+    print(f"--- Failed to load libraries: {e}", flush=True)
+    sys.exit(1)
+
+print("--- Libraries loaded.", flush=True)
 
 app = Flask(__name__)
 CORS(app)
 
 # Load the model
 try:
-    # Priority 1: Kaggle-trained fine-tuned model
-    model_path = 'results/runs/detect/emotion_yolo11s_kaggle/weights/best.pt'
+    model_path = 'model/best.onnx'
     if not os.path.exists(model_path):
-        # Priority 2: Local trained model
-        model_path = 'runs/detect/emotion_yolo11s/weights/best.pt'
-    if not os.path.exists(model_path):
-        # Priority 3: Root best.pt
-        model_path = 'best.pt'
-    if not os.path.exists(model_path):
-        print("Trained model not found. Using fallback pre-trained yolo11s.pt")
-        model_path = 'yolo11s.pt'
+        # Fallback to current directory for edge cases
+        model_path = 'best.onnx'
     
-    model = YOLO(model_path)
-    print(f"Model loaded: {model_path}")
+    print(f"--- Loading YOLO model (ONNX) from {model_path} ...", flush=True)
+    model = YOLO11ONNX(model_path)
+    print(f"--- Model successfully loaded!", flush=True)
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"--- Error loading model: {e}", flush=True)
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/evaluation-report')
+def evaluation_report():
+    # Return the generated evaluation report
+    report_path = 'evaluation/evaluation_report.html'
+    if os.path.exists(report_path):
+        with open(report_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    return "Report not generated yet. Please run evaluation script.", 404
 
 @app.route('/detect', methods=['POST'])
 def detect():
@@ -44,23 +59,8 @@ def detect():
         nparr = np.frombuffer(base64.b64decode(image_data), np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        # Run inference
-        results = model(img)
-
-        # Process results
-        detections = []
-        for r in results:
-            for box in r.boxes:
-                coords = box.xyxy[0].tolist()
-                conf = float(box.conf[0])
-                cls = int(box.cls[0])
-                label = model.names[cls]
-                
-                detections.append({
-                    'bbox': coords,
-                    'label': label,
-                    'confidence': conf
-                })
+        # Run inference using the new ONNX engine
+        detections = model(img)
 
         return jsonify({'detections': detections})
 
@@ -70,4 +70,4 @@ def detect():
 if __name__ == '__main__':
     # Ensure templates directory exists
     os.makedirs('templates', exist_ok=True)
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

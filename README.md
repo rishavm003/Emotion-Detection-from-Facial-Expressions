@@ -1,8 +1,6 @@
 # SentientAI — Emotion Detection from Facial Expressions
 
-<div align="center">
 
-![SentientAI Banner](static/results/val_batch0_pred.jpg)
 
 <br/>
 

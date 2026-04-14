@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-04-12 20:51:58",
+  "model": "F:\\Emotion-Detection-from-Facial-Expressions\\results\\runs\\detect\\emotion_yolo11s_kaggle\\weights\\best.pt",
+  "coco_metrics": {
+    "mAP50": 0.87349,
+    "mAP50_95": 0.69106,
+    "precision": 0.80284,
+    "recall": 0.80504,
+    "elapsed_s": null,
+    "source": "training_csv"
+  },
+  "classification_metrics": {
+    "macro_f1": 0.8215,
+    "weighted_f1": 0.8316
+  },
+  "per_class": {
+    "angry": {
+      "precision": 0.86,
+      "recall": 0.86,
+      "f1": 0.86
+    },
+    "contempt": {
+      "precision": 0.6837,
+      "recall": 0.67,
+      "f1": 0.6768
+    },
+    "disgust": {
+      "precision": 0.7475,
+      "recall": 0.74,
+      "f1": 0.7437
+    },
+    "fear": {
+      "precision": 0.875,
+      "recall": 0.84,
+      "f1": 0.8571
+    },
+    "happy": {
+      "precision": 0.9286,
+      "recall": 0.91,
+      "f1": 0.9192
+    },
+    "natural": {
+      "precision": 0.7263,
+      "recall": 0.69,
+      "f1": 0.7077
+    },
+    "sad": {
+      "precision": 0.8384,
+      "recall": 0.83,
+      "f1": 0.8342
+    },
+    "sleepy": {
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1": 0.9744
+    },
+    "surprised": {
+      "precision": 0.8421,
+      "recall": 0.8,
+      "f1": 0.8205
+    }
+  }
+}

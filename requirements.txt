@@ -1,8 +1,5 @@
-kagglehub
-ultralytics
-opencv-python
+onnxruntime
+opencv-python-headless
 flask
 flask-cors
-python-dotenv
-matplotlib
-seaborn
+numpy

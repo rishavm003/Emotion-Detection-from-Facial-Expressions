@@ -22,7 +22,8 @@ ENV/
 # ── Model Weights (large binary files) ─────────────
 *.pt
 *.pth
-*.onnx
+# Allow the ONNX model for deployment
+!model/*.onnx
 *.torchscript
 # Allow the results folder weights to be tracked if needed:
 # !results/runs/detect/emotion_yolo11s_kaggle/weights/best.pt
